@@ -1,0 +1,21 @@
+---
+description: Core rules for the Support Ticket Management System
+alwaysApply: true
+---
+
+- The ticket status state machine lives in one module:
+  `backend/src/domain/ticketStatus.ts`. Do not duplicate or fork transition
+  logic. `frontend/src/status.ts` is a UX-only mirror and must match it.
+- Status changes ONLY through `POST /api/tickets/:id/status`. The generic
+  `PATCH /api/tickets/:id` must never modify status.
+- Allowed transitions: OPEN -> IN_PROGRESS | CANCELLED; IN_PROGRESS -> RESOLVED |
+  CANCELLED; RESOLVED -> CLOSED; CLOSED and CANCELLED are terminal. Invalid
+  transitions return HTTP 400 and must fail closed.
+- Validate all input with Zod at the route boundary; use the central error
+  handler with the `{ error, details? }` shape.
+- Never commit secrets. Only `.env.example` is tracked; `.env` and `*.db` are
+  git-ignored.
+- Keep the mandatory state-machine integration tests green:
+  `backend/tests/ticketStatus.integration.test.ts`.
+- When transition rules change, update the tests and
+  `tool-specific/cursor-workflow/spec.md` together.
