@@ -3,11 +3,12 @@ import { TICKET_STATUSES } from "../domain/ticketStatus.js";
 
 export const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const;
 
+// createdById is intentionally NOT accepted from the client; it is derived
+// from the authenticated user on the server.
 export const createTicketSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   description: z.string().trim().min(1, "Description is required").max(5000),
   priority: z.enum(PRIORITIES),
-  createdById: z.string().min(1, "createdById is required"),
   assignedToId: z.string().min(1).optional().nullable(),
 });
 
@@ -27,9 +28,9 @@ export const changeStatusSchema = z.object({
   status: z.enum(TICKET_STATUSES),
 });
 
+// createdById (comment author) is derived from the authenticated user.
 export const createCommentSchema = z.object({
   message: z.string().trim().min(1, "Message is required").max(5000),
-  createdById: z.string().min(1, "createdById is required"),
 });
 
 export const listTicketsQuerySchema = z.object({

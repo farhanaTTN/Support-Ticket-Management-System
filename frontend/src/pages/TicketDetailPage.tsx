@@ -6,12 +6,13 @@ import { ErrorBanner } from "../components/ErrorBanner";
 import { StatusActions } from "../components/StatusActions";
 import { StatusBadge } from "../components/StatusBadge";
 import { PRIORITIES } from "../status";
-import { useUsers } from "../userContext";
-import type { Priority, Ticket, TicketStatus } from "../types";
+import { useAuth } from "../authContext";
+import { canManageTickets, type Priority, type Ticket, type TicketStatus } from "../types";
 
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { users, actingUser } = useUsers();
+  const { users, currentUser } = useAuth();
+  const canManage = currentUser ? canManageTickets(currentUser.role) : false;
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,10 +91,6 @@ export function TicketDetailPage() {
 
   async function handleAddComment() {
     if (!id) return;
-    if (!actingUser) {
-      setError("Select an acting user before commenting");
-      return;
-    }
     if (!newComment.trim()) {
       setError("Comment message is required");
       return;
@@ -101,10 +98,7 @@ export function TicketDetailPage() {
     setBusy(true);
     setError(null);
     try {
-      await api.addComment(id, {
-        message: newComment.trim(),
-        createdById: actingUser.id,
-      });
+      await api.addComment(id, { message: newComment.trim() });
       setNewComment("");
       await load();
     } catch (err) {
@@ -139,13 +133,20 @@ export function TicketDetailPage() {
             </p>
 
             <h3>Status</h3>
-            <StatusActions
-              status={ticket.status}
-              disabled={busy}
-              onChange={handleStatusChange}
-            />
+            {canManage ? (
+              <StatusActions
+                status={ticket.status}
+                disabled={busy}
+                onChange={handleStatusChange}
+              />
+            ) : (
+              <p className="muted">
+                Only agents and admins can change ticket status.
+              </p>
+            )}
           </div>
 
+          {canManage && (
           <div className="card">
             <h3>Edit details</h3>
             <div className="row">
@@ -205,6 +206,7 @@ export function TicketDetailPage() {
               </button>
             </div>
           </div>
+          )}
 
           <div className="card">
             <h3>Comments</h3>

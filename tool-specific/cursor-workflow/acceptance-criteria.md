@@ -16,6 +16,17 @@ Each Core acceptance criterion is mapped to how it is satisfied and verified.
 | AC10 | No secrets committed | `.gitignore` excludes `.env`, `*.db`; only `.env.example` tracked | Repo contains no secrets |
 | AC11 | State-machine integration tests pass | `backend/tests/ticketStatus.integration.test.ts` | `npm test` in backend is green |
 
+## Stretch: authentication and authorization (implemented)
+
+| # | Criterion | Implementation | Verification |
+|---|-----------|----------------|--------------|
+| S1 | Users authenticate with credentials | `POST /api/auth/login` + bcrypt in `authService.ts` | Login returns a JWT; wrong password returns 401 |
+| S2 | Protected routes reject unauthenticated access | `requireAuth` middleware in `backend/src/middleware/auth.ts` | Calls without a token return 401 |
+| S3 | API authorization checks by role | `requireRole("AGENT","ADMIN")` on PATCH and status routes | REQUESTER gets 403; AGENT succeeds |
+| S4 | Frontend protected routes + session | `RequireAuth`, `authContext`, `LoginPage` | Unauthenticated users are redirected to `/login` |
+| S5 | Creator/author cannot be spoofed | Derived from token `sub` in routes/services | Comment author equals the token user in tests |
+| S6 | Auth/authorization tests pass | `backend/tests/auth.integration.test.ts` | `npm test` green (10 auth tests) |
+
 ## How to verify quickly
 
 1. Backend: `npm install`, `npm run db:migrate`, `npm run db:seed`, `npm run dev`.

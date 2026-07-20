@@ -27,6 +27,16 @@ enforced rule in `.cursor/rules/support-ticket.mdc`.
   git-ignored.
 - No hardcoded credentials, no disabled TLS, no permissive CORS beyond the
   configured origin.
+- `JWT_SECRET` is read from the environment; passwords are bcrypt-hashed.
+
+## Auth and authorization
+
+- All routes except `POST /api/auth/login` and `GET /api/health` require a valid
+  JWT (`requireAuth`). `PATCH /tickets/:id` and `POST /tickets/:id/status`
+  additionally require `requireRole("AGENT","ADMIN")`.
+- Never accept the ticket creator or comment author from the request body;
+  derive it from the token (`req.user.sub`). Keep the frontend `MANAGER_ROLES`
+  mirror consistent with the backend role policy.
 
 ## Testing
 

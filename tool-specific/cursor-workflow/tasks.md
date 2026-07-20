@@ -26,9 +26,29 @@ Ordered implementation checklist. Each task references the spec section
 - [x] T10. Finalize README (run/seed/test), .env.example, and update
   acceptance-criteria for traceability. (Docs)
 
+## Stretch tasks (authentication and authorization)
+
+- [x] S-T1. Add `passwordHash` to User; migration + bcrypt seed. (spec 2, 4) ->
+  `backend/prisma/schema.prisma`, `backend/prisma/seed.ts`
+- [x] S-T2. JWT token utils + auth service (login, me). (spec 4) ->
+  `backend/src/auth/token.ts`, `backend/src/services/authService.ts`
+- [x] S-T3. `requireAuth` + `requireRole` middleware; protect routes; derive
+  creator/author from token. (spec 4, 5) -> `backend/src/middleware/auth.ts`,
+  `backend/src/routes/*.ts`
+- [x] S-T4. Frontend auth: context, login page, protected routes, token header,
+  logout, role-gated UI. (spec 4, 8) -> `frontend/src/authContext.tsx`,
+  `frontend/src/pages/LoginPage.tsx`, `frontend/src/components/RequireAuth.tsx`
+- [x] S-T5. Auth/authorization integration tests + update state-machine tests to
+  authenticate. (spec 4) -> `backend/tests/auth.integration.test.ts`
+
 ## Iteration log
 
 - v1: Initial scaffold and full Core implementation across backend + frontend.
 - v1.1: Added `allowedNextStatuses` to the ticket detail response so the UI and
   backend rules stay aligned; added an explicit self-transition rejection
   (already-in-status) and unknown-status test case beyond the base matrix.
+- v2: Added Stretch authentication/authorization. JWT login, bcrypt passwords,
+  role-based route guards (AGENT/ADMIN for update + status), token-derived
+  creator/author (removed client-supplied createdById), frontend login and
+  protected routes. Updated the state-machine tests to authenticate and added a
+  dedicated auth test suite. Test count 15 -> 25.

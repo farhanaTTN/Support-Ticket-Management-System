@@ -23,8 +23,8 @@ async function assertUserExists(userId: string, field: string) {
   }
 }
 
-export async function createTicket(input: CreateTicketInput) {
-  await assertUserExists(input.createdById, "createdById");
+export async function createTicket(input: CreateTicketInput, createdById: string) {
+  await assertUserExists(createdById, "createdById");
   if (input.assignedToId) {
     await assertUserExists(input.assignedToId, "assignedToId");
   }
@@ -35,7 +35,7 @@ export async function createTicket(input: CreateTicketInput) {
       description: input.description,
       priority: input.priority,
       status: "OPEN",
-      createdById: input.createdById,
+      createdById,
       assignedToId: input.assignedToId ?? null,
     },
     include: ticketInclude,

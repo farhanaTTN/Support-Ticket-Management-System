@@ -7,11 +7,25 @@ export type TicketStatus =
 
 export type Priority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
+export type Role = "ADMIN" | "AGENT" | "REQUESTER";
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: string;
+}
+
+export interface AuthResult {
+  token: string;
+  user: User;
+}
+
+// Roles permitted to update tickets and change status (must match backend).
+export const MANAGER_ROLES: Role[] = ["ADMIN", "AGENT"];
+
+export function canManageTickets(role: string): boolean {
+  return (MANAGER_ROLES as string[]).includes(role);
 }
 
 export interface Comment {

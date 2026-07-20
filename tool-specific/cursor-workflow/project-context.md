@@ -8,10 +8,10 @@ progress tickets through a defined lifecycle.
 
 ## Users and roles
 
-Users are seeded only (no user-management UI in Core). Roles: `ADMIN`,
-`AGENT`, `REQUESTER`. Because there is no authentication in Core, the UI
-provides an "Acting as" selector backed by the seeded users so that
-`createdBy` / comment authorship can be attributed.
+Users are seeded only (no user-management UI). Roles: `ADMIN`, `AGENT`,
+`REQUESTER`. Authentication has been added (see the Stretch note below): users
+log in with a seeded account, and `createdBy` / comment authorship is derived
+from the authenticated user rather than a client-supplied id.
 
 ## Entities
 
@@ -36,8 +36,12 @@ provides an "Acting as" selector backed by the seeded users so that
 - Validation: Zod
 - Tests: Vitest + Supertest (state-machine integration tests)
 
-## Out of scope (Core)
+## Stretch implemented
 
-Authentication, user CRUD, role-based authorization, priority/assignee
-filtering, sorting, pagination, API docs, Docker, and CI are Stretch items
-and intentionally excluded from this implementation.
+Authentication (JWT + bcrypt), protected routes, and role-based API
+authorization have been added on top of Core. See `spec.md` sections 4-5.
+
+## Out of scope
+
+User CRUD/management UI, priority/assignee filtering, sorting, pagination,
+API docs, Docker, and CI remain out of scope.

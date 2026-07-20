@@ -9,6 +9,8 @@ export default defineConfig({
     env: {
       // Isolated test database so tests never touch dev data.
       DATABASE_URL: "file:./test.db",
+      JWT_SECRET: "test-secret",
+      SEED_PASSWORD: "Password123!",
     },
     hookTimeout: 60000,
     testTimeout: 30000,

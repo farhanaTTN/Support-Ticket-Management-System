@@ -14,8 +14,15 @@ alwaysApply: true
 - Validate all input with Zod at the route boundary; use the central error
   handler with the `{ error, details? }` shape.
 - Never commit secrets. Only `.env.example` is tracked; `.env` and `*.db` are
-  git-ignored.
-- Keep the mandatory state-machine integration tests green:
-  `backend/tests/ticketStatus.integration.test.ts`.
-- When transition rules change, update the tests and
+  git-ignored. `JWT_SECRET` comes from the environment; passwords are bcrypt-hashed.
+- Auth: all routes except `POST /api/auth/login` and `GET /api/health` require a
+  valid JWT via `requireAuth`. `PATCH /tickets/:id` and `POST /tickets/:id/status`
+  additionally require `requireRole("AGENT","ADMIN")`.
+- Never accept `createdById` / comment author from the request body; derive it
+  from the authenticated token (`req.user.sub`). The frontend `MANAGER_ROLES`
+  mirror in `frontend/src/types.ts` must match the backend role policy.
+- Keep the mandatory tests green:
+  `backend/tests/ticketStatus.integration.test.ts` and
+  `backend/tests/auth.integration.test.ts`.
+- When transition rules or the auth policy change, update the tests and
   `tool-specific/cursor-workflow/spec.md` together.

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PRIORITIES } from "../status";
-import { useUsers } from "../userContext";
+import { useAuth } from "../authContext";
 import type { Priority } from "../types";
 
 export interface TicketFormValues {
@@ -18,7 +18,7 @@ interface TicketFormProps {
 // Create-ticket form with client-side required-field checks. The backend
 // performs authoritative validation; this only improves UX.
 export function TicketForm({ onSubmit, submitting }: TicketFormProps) {
-  const { users } = useUsers();
+  const { users } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("MEDIUM");

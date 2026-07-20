@@ -1,46 +1,57 @@
 import { Link, Route, Routes } from "react-router-dom";
 import { TicketsPage } from "./pages/TicketsPage";
 import { TicketDetailPage } from "./pages/TicketDetailPage";
-import { UserProvider, useUsers } from "./userContext";
+import { LoginPage } from "./pages/LoginPage";
+import { RequireAuth } from "./components/RequireAuth";
+import { useAuth } from "./authContext";
 
-function ActingUserSelector() {
-  const { users, actingUser, setActingUser } = useUsers();
+function SessionBar() {
+  const { currentUser, logout } = useAuth();
+  if (!currentUser) return null;
   return (
-    <div style={{ minWidth: 220 }}>
-      <label htmlFor="acting-user">Acting as</label>
-      <select
-        id="acting-user"
-        value={actingUser?.id ?? ""}
-        onChange={(e) =>
-          setActingUser(users.find((u) => u.id === e.target.value) ?? null)
-        }
-      >
-        {users.length === 0 && <option value="">No users</option>}
-        {users.map((u) => (
-          <option key={u.id} value={u.id}>
-            {u.name} ({u.role})
-          </option>
-        ))}
-      </select>
+    <div className="row" style={{ alignItems: "center" }}>
+      <span className="muted">
+        {currentUser.name} ({currentUser.role})
+      </span>
+      <button className="secondary" onClick={logout}>
+        Sign out
+      </button>
     </div>
   );
 }
 
 export function App() {
   return (
-    <UserProvider>
+    <>
       <div className="topbar">
         <h1>
           <Link to="/">Support Ticket Management</Link>
         </h1>
-        <ActingUserSelector />
+        <SessionBar />
       </div>
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<TicketsPage />} />
-          <Route path="/tickets/:id" element={<TicketDetailPage />} />
-        </Routes>
-      </div>
-    </UserProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <div className="container">
+                <TicketsPage />
+              </div>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/tickets/:id"
+          element={
+            <RequireAuth>
+              <div className="container">
+                <TicketDetailPage />
+              </div>
+            </RequireAuth>
+          }
+        />
+      </Routes>
+    </>
   );
 }

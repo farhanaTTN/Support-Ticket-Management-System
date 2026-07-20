@@ -5,11 +5,11 @@ import { ErrorBanner } from "../components/ErrorBanner";
 import { StatusBadge } from "../components/StatusBadge";
 import { TicketForm, type TicketFormValues } from "../components/TicketForm";
 import { STATUSES, statusLabel } from "../status";
-import { useUsers } from "../userContext";
+import { useAuth } from "../authContext";
 import type { Ticket, TicketStatus } from "../types";
 
 export function TicketsPage() {
-  const { actingUser } = useUsers();
+  const { currentUser } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<TicketStatus | "">("");
@@ -35,14 +35,14 @@ export function TicketsPage() {
   }, [load]);
 
   async function handleCreate(values: TicketFormValues) {
-    if (!actingUser) {
-      setError("Select an acting user before creating a ticket");
+    if (!currentUser) {
+      setError("You must be signed in to create a ticket");
       return;
     }
     setSubmitting(true);
     setError(null);
     try {
-      await api.createTicket({ ...values, createdById: actingUser.id });
+      await api.createTicket(values);
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to create ticket");
