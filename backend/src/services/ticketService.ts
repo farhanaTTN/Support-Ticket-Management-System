@@ -108,6 +108,14 @@ export async function updateTicket(id: string, input: UpdateTicketInput) {
   });
 }
 
+export async function deleteTicket(id: string) {
+  const existing = await prisma.ticket.findUnique({ where: { id } });
+  if (!existing) {
+    throw notFound(`Ticket ${id} not found`);
+  }
+  await prisma.ticket.delete({ where: { id } });
+}
+
 export async function changeStatus(id: string, target: TicketStatus) {
   const existing = await prisma.ticket.findUnique({ where: { id } });
   if (!existing) {

@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useAuth } from "../authContext";
+import { PageSpinner } from "./Spinner";
 
 // Guards routes: redirects to /login when there is no signed-in user.
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -8,7 +9,11 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   if (initializing) {
-    return <div className="container">Loading...</div>;
+    return (
+      <div className="container">
+        <PageSpinner />
+      </div>
+    );
   }
 
   if (!currentUser) {

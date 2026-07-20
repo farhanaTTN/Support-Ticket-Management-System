@@ -11,6 +11,7 @@ import {
 import {
   changeStatus,
   createTicket,
+  deleteTicket,
   getTicket,
   listTickets,
   updateTicket,
@@ -59,7 +60,16 @@ ticketsRouter.patch(
   })
 );
 
-// Changing status is restricted to agents and admins.
+// Deleting a ticket is restricted to agents and admins.
+ticketsRouter.delete(
+  "/:id",
+  requireRole("AGENT", "ADMIN"),
+  asyncHandler(async (req, res) => {
+    await deleteTicket(req.params.id);
+    res.status(204).end();
+  })
+);
+
 ticketsRouter.post(
   "/:id/status",
   requireRole("AGENT", "ADMIN"),

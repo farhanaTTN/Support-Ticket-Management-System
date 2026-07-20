@@ -120,6 +120,9 @@ export const api = {
       body: JSON.stringify(input),
     }),
 
+  deleteTicket: (id: string) =>
+    request<void>(`/api/tickets/${id}`, { method: "DELETE" }),
+
   changeStatus: (id: string, status: TicketStatus) =>
     request<Ticket>(`/api/tickets/${id}/status`, {
       method: "POST",
