@@ -1,34 +1,61 @@
 # Acceptance Criteria
 
-Each Core acceptance criterion is mapped to how it is satisfied and verified.
+## Core
 
-| # | Criterion | Implementation | Verification |
-|---|-----------|----------------|--------------|
-| AC1 | Create a ticket via the UI | `frontend/src/components/TicketForm.tsx` + `POST /api/tickets` | Create form on Tickets page; new ticket appears in list |
-| AC2 | View all tickets from the database | `frontend/src/pages/TicketsPage.tsx` + `GET /api/tickets` | Table lists persisted tickets |
-| AC3 | Open a ticket detail view | `frontend/src/pages/TicketDetailPage.tsx` + `GET /api/tickets/:id` | Clicking a title opens detail with comments |
-| AC4 | Update ticket fields and reassign | `updateTicket` + `PATCH /api/tickets/:id` | Edit details card saves title/description/priority/assignee |
-| AC5 | Add comments | `commentService.addComment` + `POST /api/tickets/:id/comments` | Comment appears in the thread |
-| AC6 | Status changes only through valid transitions; invalid rejected | `backend/src/domain/ticketStatus.ts` + `POST /api/tickets/:id/status` | UI shows only valid actions; backend returns 400 for invalid |
-| AC7 | Keyword search and status filter work | `listTickets` where-clause + Tickets page controls | Search box + status dropdown filter results |
-| AC8 | Data remains available after restart | Prisma + SQLite `file:./dev.db` | Restart API; tickets/comments persist |
-| AC9 | Backend validation prevents invalid records | Zod schemas + service existence checks | Missing/invalid fields return 400 |
-| AC10 | No secrets committed | `.gitignore` excludes `.env`, `*.db`; only `.env.example` tracked | Repo contains no secrets |
-| AC11 | State-machine integration tests pass | `backend/tests/ticketStatus.integration.test.ts` | `npm test` in backend is green |
+- [x] User can create a ticket via the UI (`TicketForm` → `POST /api/tickets`)
+- [x] User can view all tickets from the database in a responsive card grid
+- [x] User can open a ticket detail view with comments (`GET /api/tickets/:id`)
+- [x] AGENT/ADMIN can update ticket fields and reassign (`PATCH /api/tickets/:id`)
+- [x] AGENT/ADMIN can delete a ticket (`DELETE /api/tickets/:id`)
+- [x] Any authenticated user can add comments (`POST /api/tickets/:id/comments`)
+- [x] Status changes only through `POST /api/tickets/:id/status` with valid transitions
+- [x] Invalid status transitions are rejected with HTTP 400
+- [x] Keyword search and status filter work on the tickets list
+- [x] Data persists after server restart (SQLite via Prisma)
+- [x] Ticket cards show ID, title, description (truncated), status badge, priority badge, assignee, creation date, and action buttons
+- [x] Attractive empty state when no tickets exist
+- [x] Light/dark theme toggle in the navigation bar, persisted in `localStorage`
 
-## Stretch: authentication and authorization (implemented)
+## Validation
 
-| # | Criterion | Implementation | Verification |
-|---|-----------|----------------|--------------|
-| S1 | Users authenticate with credentials | `POST /api/auth/login` + bcrypt in `authService.ts` | Login returns a JWT; wrong password returns 401 |
-| S2 | Protected routes reject unauthenticated access | `requireAuth` middleware in `backend/src/middleware/auth.ts` | Calls without a token return 401 |
-| S3 | API authorization checks by role | `requireRole("AGENT","ADMIN")` on PATCH and status routes | REQUESTER gets 403; AGENT succeeds |
-| S4 | Frontend protected routes + session | `RequireAuth`, `authContext`, `LoginPage` | Unauthenticated users are redirected to `/login` |
-| S5 | Creator/author cannot be spoofed | Derived from token `sub` in routes/services | Comment author equals the token user in tests |
-| S6 | Auth/authorization tests pass | `backend/tests/auth.integration.test.ts` | `npm test` green (10 auth tests) |
+- [x] Backend validates all request input with Zod at the route boundary
+- [x] Title and description are required and length-limited
+- [x] Priority must be one of `LOW | MEDIUM | HIGH | CRITICAL`
+- [x] `assignedToId` must reference an existing user
+- [x] Ticket creator and comment author are derived from JWT `sub`, not request body
+- [x] Frontend forms show inline validation messages before submit
+- [x] Login form validates email format and required fields
 
-## How to verify quickly
+## Error Handling
 
-1. Backend: `npm install`, `npm run db:migrate`, `npm run db:seed`, `npm run dev`.
-2. Frontend: `npm install`, `npm run dev`, open http://localhost:5173.
-3. Tests: `cd backend && npm test`.
+- [x] API errors use consistent shape `{ error, details? }`
+- [x] `ErrorBanner` displays backend error messages in the UI
+- [x] Toast notifications for success and failure actions
+- [x] 401 on any authenticated call clears session and redirects to login
+- [x] 403 surfaces permission errors clearly
+- [x] 404 shows ticket-not-found state on detail page
+- [x] Network errors show user-friendly message ("could not reach the server")
+- [x] State-machine rejections surface the backend message in the UI
+
+## Testing
+
+- [x] State-machine integration tests pass (`ticketStatus.integration.test.ts`)
+- [x] Auth/authorization integration tests pass (`auth.integration.test.ts`)
+- [x] Tests cover valid transitions, invalid transitions, self-transition rejection, and role checks
+- [x] `npm test` in `backend/` runs green
+
+## Documentation
+
+- [x] README includes setup, seed accounts, API overview, and security notes
+- [x] `.env.example` documents required environment variables (no real secrets)
+- [x] `tool-specific/cursor-workflow/` contains spec, tasks, and workflow rules
+- [x] Submission artifacts follow the required template structure
+
+## Stretch: Authentication & Authorization
+
+- [x] Users authenticate with email + bcrypt-hashed password (`POST /api/auth/login`)
+- [x] JWT issued on successful login; stored in frontend `localStorage`
+- [x] All routes except login and health require valid JWT
+- [x] `PATCH /tickets/:id` and `POST /tickets/:id/status` require AGENT or ADMIN role
+- [x] Frontend protected routes redirect unauthenticated users to `/login`
+- [x] Role-gated UI: managers see edit/delete/status controls; requesters do not
